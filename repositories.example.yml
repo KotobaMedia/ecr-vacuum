@@ -1,0 +1,6 @@
+---
+ecr-repository-name:
+  git: git@github.com:KotobaMedia/test-repository.git
+  keep_branches:
+    - master
+    - staging
