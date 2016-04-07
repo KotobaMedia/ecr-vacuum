@@ -1,6 +1,6 @@
 ---
 ecr-repository-name:
-  git: git@github.com:KotobaMedia/test-repository.git
+  git: https://github.com/KotobaMedia/ecr-vacuum-test-repository.git
   keep_branches:
     - master
     - staging

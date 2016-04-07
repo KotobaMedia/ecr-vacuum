@@ -28,15 +28,15 @@ repositories.repositories.each do |repository|
 
   images_to_destroy = images.image_ids.reduce([]) do |acc, image|
     if !valid_image_tags.include?(image.image_tag)
-      puts "==> #{image.image_tag} marked for destroy"
+      puts "==> \"#{image.image_tag}\" marked for destroy"
       acc << {
         image_tag: image.image_tag,
         image_digest: image.image_digest
       }
+    else
+      acc
     end
   end
-
-  puts "====="
 
   if images_to_destroy.any?
     ecr.batch_delete_image({
