@@ -9,14 +9,18 @@ repositories = ecr.describe_repositories({max_results: 100})
 puts "Starting at #{Time.now.to_s}"
 
 repositories.repositories.each do |repository|
+  config = config_for(repository.repository_name)
+  if !config
+    puts "Repository #{repository.repository_name} not in config, skipping."
+    next
+  end
+
   puts "Repository #{repository.repository_name} starting."
 
   images = ecr.list_images({
     repository_name: repository.repository_name,
     max_results: 100
   })
-
-  config = config_for(repository.repository_name)
 
   g = open_repository(repository.repository_name)
   valid_image_tags = config["keep_branches"].
