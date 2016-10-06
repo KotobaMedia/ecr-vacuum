@@ -14,6 +14,13 @@ if DRY_RUN
   puts "[!!] Dry run mode enabled! Images will not be destroyed."
 end
 
+def tag_list_includes_tag?(image_tags, cmp_tag)
+  image_tags.any? do |tag|
+    tag == cmp_tag ||
+    (cmp_tag.length >= 7 && tag[0..(cmp_tag.length - 1)] == cmp_tag)
+  end
+end
+
 repositories.repositories.each do |repository|
   config = config_for(repository.repository_name)
   if !config
@@ -37,7 +44,7 @@ repositories.repositories.each do |repository|
     uniq
 
   images_to_destroy = images.image_ids.reduce([]) do |acc, image|
-    if !valid_image_tags.include?(image.image_tag)
+    if !tag_list_includes_tag?(valid_image_tags, image.image_tag)
       puts "==> \"#{image.image_tag}\" marked for destroy"
       acc << {
         image_tag: image.image_tag,
