@@ -18,6 +18,15 @@ Copy `repositories.example.yml` to `repositories.yml`. Configure:
   keep_branches: [array of branch names to search]
 ```
 
+## Dry run
+
+To run ecr-vacuum without actually deleting any images, run it with the `DRY_RUN`
+environment variable:
+
+```
+env DRY_RUN=1 ./ecr-vacuum.rb
+```
+
 ## Authentication
 
 The most common use case for this script is being run in an EC2 instance that has

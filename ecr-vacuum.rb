@@ -2,11 +2,17 @@
 
 require_relative "./lib/setup"
 
+DRY_RUN = !!ENV["DRY_RUN"]
+
 region = ENV["AWS_REGION"] || "us-east-1"
 ecr = Aws::ECR::Client.new(region: region)
 repositories = ecr.describe_repositories({max_results: 100})
 
 puts "Starting at #{Time.now.to_s}"
+
+if DRY_RUN
+  puts "[!!] Dry run mode enabled! Images will not be destroyed."
+end
 
 repositories.repositories.each do |repository|
   config = config_for(repository.repository_name)
@@ -42,7 +48,7 @@ repositories.repositories.each do |repository|
     end
   end
 
-  if images_to_destroy.any?
+  if !DRY_RUN && images_to_destroy.any?
     ecr.batch_delete_image({
       repository_name: repository.repository_name,
       image_ids: images_to_destroy
