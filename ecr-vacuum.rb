@@ -30,10 +30,20 @@ repositories.repositories.each do |repository|
 
   puts "Repository #{repository.repository_name} starting."
 
-  images = ecr.list_images({
-    repository_name: repository.repository_name,
-    max_results: 100
-  })
+  image_ids = []
+  next_token = nil
+  while true
+    list_opts = {
+      repository_name: repository.repository_name,
+      max_results: 100
+    }
+    list_opts[:next_token] = next_token if next_token
+    images = ecr.list_images(list_opts)
+    image_ids += images.image_ids
+    if !(next_token = images.next_token)
+      break
+    end
+  end
 
   g = open_repository(repository.repository_name)
   valid_image_tags = config["keep_branches"].
@@ -43,7 +53,7 @@ repositories.repositories.each do |repository|
     flatten.
     uniq
 
-  images_to_destroy = images.image_ids.reduce([]) do |acc, image|
+  images_to_destroy = image_ids.reduce([]) do |acc, image|
     if !tag_list_includes_tag?(valid_image_tags, image.image_tag)
       puts "==> \"#{image.image_tag}\" marked for destroy"
       acc << {
