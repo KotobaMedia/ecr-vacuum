@@ -54,7 +54,7 @@ repositories.repositories.each do |repository|
     uniq
 
   images_to_destroy = image_ids.reduce([]) do |acc, image|
-    if !tag_list_includes_tag?(valid_image_tags, image.image_tag)
+    if image.image_tag && !tag_list_includes_tag?(valid_image_tags, image.image_tag)
       puts "==> \"#{image.image_tag}\" marked for destroy"
       acc << {
         image_tag: image.image_tag,
