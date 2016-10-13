@@ -56,13 +56,16 @@ repositories.repositories.each do |repository|
   substrs = config["keep_commits_with_substring"]
   if substrs && substrs.any?
     g.branches.map(&:name).each do |branch_name|
-      valid_image_tags += g.log.object(branch_name).select do |commit|
-        substrs.any? do |substr|
-          (commit.message || "").include?(substr)
-        end
-      end.sort do |left, right|
-        left.date < right.date
-      end.take(KEEP_COUNT).map(&:sha)
+      matching_objects = g.log(nil).object(branch_name).select do |commit|
+          substrs.any? do |substr|
+            (commit.message || "").include?(substr)
+          end
+        end.sort_by do |commit|
+          commit.date
+        end.
+        reverse.
+        take(KEEP_COUNT)
+      valid_image_tags += matching_objects.map(&:sha)
     end
   end
 

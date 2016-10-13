@@ -26,6 +26,9 @@ def open_repository(name)
     end
   rescue Git::GitExecuteError => e
     git = Git.clone(repo_url, dir, bare: true)
+    Dir.chdir(dir) do
+      system("git fetch origin '*:*'")
+    end
   end
   git
 end
