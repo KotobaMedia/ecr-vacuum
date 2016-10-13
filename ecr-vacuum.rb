@@ -66,10 +66,12 @@ repositories.repositories.each do |repository|
   end
 
   if !DRY_RUN && images_to_destroy.any?
-    ecr.batch_delete_image({
-      repository_name: repository.repository_name,
-      image_ids: images_to_destroy
-    })
+    images_to_destroy.each_slice(100) do |slice_of_images|
+      ecr.batch_delete_image({
+        repository_name: repository.repository_name,
+        image_ids: slice_of_images
+      })
+    end
   else
     puts "Found no images to destroy."
   end
