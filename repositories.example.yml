@@ -4,3 +4,5 @@ ecr-repository-name:
   keep_branches:
     - master
     - staging
+  keep_commits_with_substring:
+    - KEEP_THIS_COMMIT

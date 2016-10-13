@@ -3,6 +3,7 @@
 require_relative "./lib/setup"
 
 DRY_RUN = !!ENV["DRY_RUN"]
+KEEP_COUNT = 10
 
 region = ENV["AWS_REGION"] || "us-east-1"
 ecr = Aws::ECR::Client.new(region: region)
@@ -48,10 +49,24 @@ repositories.repositories.each do |repository|
   g = open_repository(repository.repository_name)
   valid_image_tags = config["keep_branches"].
     map do |branch|
-      g.log(10).object(branch).map(&:sha)
+      g.log(KEEP_COUNT).object(branch).map(&:sha)
     end.
-    flatten.
-    uniq
+    flatten
+
+  substrs = config["keep_commits_with_substring"]
+  if substrs && substrs.any?
+    g.branches.map(&:name).each do |branch_name|
+      valid_image_tags += g.log.object(branch_name).select do |commit|
+        substrs.any? do |substr|
+          (commit.message || "").include?(substr)
+        end
+      end.sort do |left, right|
+        left.date < right.date
+      end.take(KEEP_COUNT).map(&:sha)
+    end
+  end
+
+  valid_image_tags.uniq!
 
   images_to_destroy = image_ids.reduce([]) do |acc, image|
     if image.image_tag && !tag_list_includes_tag?(valid_image_tags, image.image_tag)
