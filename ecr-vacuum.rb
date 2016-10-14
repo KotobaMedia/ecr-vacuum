@@ -78,6 +78,12 @@ repositories.repositories.each do |repository|
         image_tag: image.image_tag,
         image_digest: image.image_digest
       }
+    elsif image.image_tag.nil? && config["delete_untagged_images"]
+      puts "==> Untagged image \"#{image.image_digest}\" marked for destroy"
+      acc << {
+        image_tag: image.image_tag,
+        image_digest: image.image_digest
+      }
     else
       acc
     end

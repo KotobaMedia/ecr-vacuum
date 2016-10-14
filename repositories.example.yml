@@ -6,3 +6,4 @@ ecr-repository-name:
     - staging
   keep_commits_with_substring:
     - KEEP_THIS_COMMIT
+  delete_untagged_images: true
